@@ -52,29 +52,18 @@
     </div>
 </div>
 
-<div class="container">
+<div class="container" style="text-align:center;">
     {% block content %}
         <div class="page-header">
             <h1 class="text-center">Overview of Training Dataset</h1>
         </div>
     {% endblock %}
 
-    {% for id in ids %}
-        <div id="{{id}}"></div>
-    {% endfor %}
 
-    <div class="row"><iframe src="/viz_genre" height="600" width="400" title="Genre Graph" style="border-bottom:1px dashed black"></iframe></div>
-    <div class="row"><iframe src="/viz_category" height="600" width="400" title="Category Graph" style="border-bottom:1px dashed black"></iframe></div>
-    <div class="row"><iframe src="/viz_multicategory" height="600" width="400" title="Multicategory Graph"></iframe></div>
+    <div class="row"><iframe src="/viz_genre" height="600" width="1000" title="Genre Graph" style="border:0px;border-bottom:1px dashed black"></iframe></div>
+    <div class="row"><iframe src="/viz_category" height="600" width="1000" title="Category Graph" style="border:0px;border-bottom:1px dashed black"></iframe></div>
+    <div class="row"><iframe src="/viz_multicategory" height="600" width="1000" title="Multicategory Graph" style="border:0px;"></iframe></div>
 </div>
-
-<script type="text/javascript">
-    const graphs = {{graphJSON | safe}};
-    const ids = {{ids | safe}};
-    for(let i in graphs) {
-        Plotly.plot(ids[i], graphs[i].data, graphs[i].layout);
-    }
-</script>
 
 </body>
 </html>
