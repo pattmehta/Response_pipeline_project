@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Multicategory Mn Plot</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+</head>
+<body>
+<div class="container">
+    <div class="accordion" id="accordionPanelsStayOpenExample">
+        {% for id in ids %}
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="panelsStayOpen-heading-{{ id }}">
+                <!-- data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapse-{{ id }}" aria-expanded="true" aria-controls="panelsStayOpen-collapse-{{ id }}" -->
+                <button class="accordion-button" type="button"  >
+                  Multicategory Mn Plot
+                </button>
+            </h2>
+            <div id="panelsStayOpen-collapse-{{ id }}" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-heading-{{ id }}">
+              <div class="accordion-body">
+                  <div>
+                      <div id="{{ id }}"></div>
+                  </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+    </div>
+</div>
+</body>
+<script type="text/javascript">
+  document.addEventListener('DOMContentLoaded', function(e) {
+    const graph = {{ graph | safe }}
+    const ids = {{ ids | safe }}
+    Plotly.newPlot(String(ids[0]), graph.data, graph.layout)
+  })
+</script>
+</html>

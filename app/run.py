@@ -62,6 +62,26 @@ def categories_agg(c):
     else: return False
 df_multicategory_agg = df_multicategory.aggregate(categories_agg)
 df_gc_x = list(df_multicategory_agg.index)
+
+# message labels
+df_mn = df[(df['money']==1)].loc[:,'genre':'weather_related']
+ignore_columns = ['related','aid_related','money','other_aid','request','offer','aid_centers','genre']
+def global_mn_agg(s):
+    if s.name not in ignore_columns: return s.sum()
+    else: return None
+
+df_mn_agg_cleaned = df_mn.aggregate(global_mn_agg).dropna().sort_values(ascending=False)
+df_mn_message_labels = list(df_mn_agg_cleaned.index)
+
+selected_msglabels = []
+def agg_mn(s):
+    if s.name not in ['related','aid_related','money','other_aid','request','offer','aid_centers','genre'] and s.name in df_mn_message_labels[:5]:
+        if s.name not in selected_msglabels: selected_msglabels.append(s.name)
+        return s.sum()
+    else: return None
+
+mn_agg = df_mn.groupby(by='genre',group_keys=True).aggregate(agg_mn).dropna(axis=1)
+mn_agg_x = list(mn_agg.index)
 # data prep for plots end
 
 # load model
@@ -92,6 +112,12 @@ def viz_multicategory():
     ids = [1]
     graphJSON = create_multicategory_plot()
     return render_template('viz_multicategory.html', ids=ids, graph=graphJSON)
+
+@app.route('/viz_multicategory_mn')
+def viz_multicategory_mn():
+    ids = [1]
+    graphJSON = create_multicategory_plot_for_mn()
+    return render_template('viz_multicategory_mn.html', ids=ids, graph=graphJSON)
 # routes end
 
 # index webpage displays cool visuals and receives user input text for model
@@ -350,6 +376,101 @@ def create_multicategory_plot():
                         'mirror': 'ticks',
                         'nticks': 8,
                         'range': [0.0, 6103.65],
+                        'showgrid': True,
+                        'showline': True,
+                        'title': 'Count',
+                        'side': 'left',
+                        'tickfont': {'size': 10.0},
+                        'ticks': 'inside',
+                        'type': 'linear',
+                        'zeroline': False}
+            }
+        }
+
+    graphJSON = json.dumps(graph, cls=plotly.utils.PlotlyJSONEncoder)
+    return graphJSON
+
+def create_multicategory_plot_for_mn():
+    graph = \
+        {
+            'data': [
+                Bar({
+                    'opacity': 1,
+                    'orientation': 'v',
+                    'x': [-0.2, 0.8, 1.8],
+                    'xaxis': 'x',
+                    'y': mn_agg[selected_msglabels[0]],
+                    'yaxis': 'y',
+                    'name': selected_msglabels[0]
+                }),
+                Bar({
+                    'opacity': 1,
+                    'orientation': 'v',
+                    'x': [-0.09999999999999996, 0.8999999999999999, 1.9],
+                    'xaxis': 'x',
+                    'y': mn_agg[selected_msglabels[1]],
+                    'yaxis': 'y',
+                    'name': selected_msglabels[1]
+                }),
+                Bar({
+                    'opacity': 1,
+                    'orientation': 'v',
+                    'x': [0.0, 1.0, 2.0],
+                    'xaxis': 'x',
+                    'y': mn_agg[selected_msglabels[2]],
+                    'yaxis': 'y',
+                    'name': selected_msglabels[2]
+                }),
+                Bar({
+                    'opacity': 1,
+                    'orientation': 'v',
+                    'x': [0.10000000000000003, 1.1, 2.1000000000000005],
+                    'xaxis': 'x',
+                    'y': mn_agg[selected_msglabels[3]],
+                    'yaxis': 'y',
+                    'name': selected_msglabels[3]
+                }),
+                Bar({
+                    'opacity': 1,
+                    'orientation': 'v',
+                    'x': [0.2, 1.2, 2.2],
+                    'xaxis': 'x',
+                    'y': mn_agg[selected_msglabels[4]],
+                    'yaxis': 'y',
+                    'name': selected_msglabels[4]
+                })
+            ],
+            'layout': {
+                'title': 'Message Request with Label Money for Various Genre',
+                'autosize': False,
+                'bargap': 0.0,
+                'height': 480,
+                'hovermode': 'closest',
+                'margin': {'b': 52, 'l': 80, 'pad': 0, 'r': 63, 't': 57},
+                'showlegend': True,
+                'template': '...',
+                'width': 640,
+                'xaxis': {'anchor': 'y',
+                        'domain': [0.0, 1.0],
+                        'dtick': 1,
+                        'mirror': 'ticks',
+                        'range': [-0.5, 2.5],
+                        'showgrid': True,
+                        'showline': True,
+                        'side': 'bottom',
+                        'tickfont': {'size': 10.0},
+                        'ticks': '',
+                        'tickmode': 'array',
+                        'ticktext': mn_agg_x,
+                        'tickvals': list(range(0,len(mn_agg_x))),
+                        'title': {'font': {'color': '#000000', 'size': 10.0}, 'text': 'Genre'},
+                        'type': 'linear',
+                        'zeroline': False},
+                'yaxis': {'anchor': 'x',
+                        'domain': [0.0, 1.0],
+                        'mirror': 'ticks',
+                        'nticks': 10,
+                        'range': [0.0, 200.55],
                         'showgrid': True,
                         'showline': True,
                         'title': 'Count',
