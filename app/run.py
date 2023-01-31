@@ -48,7 +48,8 @@ df_genre_vc_x = list(df_genre_vc.index)
 df_genre_vc_y = list(df_genre_vc.values)
 
 df_category = df.loc[:,'aid_centers':'weather_related']
-df_category_topten = df_category.sum().sort_values(ascending=False)[:10]
+# index 1 is on purpose, to remove 'related' column
+df_category_topten = df_category.sum().sort_values(ascending=False)[1:11]
 df_category_sort_x = list(df_category_topten.index)
 df_category_sort_y = list(df_category_topten.values)
 
@@ -172,7 +173,7 @@ def create_genre_plot():
                 })
             ],
             'layout': {
-                'title': 'Genre Plot',
+                'title': 'Distribution of Message Genres by Count',
                 'autosize': False,
                 'bargap': 0.5,
                 'height': 480,
@@ -184,6 +185,7 @@ def create_genre_plot():
                 'xaxis': {'anchor': 'y',
                         'showgrid': True,
                         'showline': True,
+                        'title': 'Genre',
                         'side': 'bottom',
                         'tickfont': {'size': 10.0},
                         'ticks': '',
@@ -195,6 +197,7 @@ def create_genre_plot():
                         'mirror': 'ticks',
                         'showgrid': True,
                         'showline': True,
+                        'title': 'Count',
                         'side': 'left',
                         'tickfont': {'size': 10.0},
                         'ticks': 'inside',
@@ -221,7 +224,7 @@ def create_category_plot():
                 })
             ],
             'layout': {
-                'title': 'Category Plot',
+                'title': 'Top 10 Message Categories by Count',
                 'autosize': False,
                 'bargap': 0.5,
                 'height': 480,
@@ -245,6 +248,7 @@ def create_category_plot():
                         'mirror': 'ticks',
                         'showgrid': True,
                         'showline': True,
+                        'title': 'Count',
                         'side': 'left',
                         'tickfont': {'size': 10.0},
                         'ticks': 'inside',
@@ -316,7 +320,7 @@ def create_multicategory_plot():
                 })
             ],
             'layout': {
-                'title': 'Multicategory Plot',
+                'title': 'Distribution of Major Message Categories by Genre',
                 'autosize': False,
                 'bargap': 0.0,
                 'height': 480,
@@ -338,7 +342,7 @@ def create_multicategory_plot():
                         'tickmode': 'array',
                         'ticktext': df_gc_x,
                         'tickvals': list(range(0,len(df_gc_x))),
-                        'title': {'font': {'color': '#000000', 'size': 10.0}, 'text': 'genre'},
+                        'title': {'font': {'color': '#000000', 'size': 10.0}, 'text': 'Genre'},
                         'type': 'linear',
                         'zeroline': False},
                 'yaxis': {'anchor': 'x',
@@ -348,6 +352,7 @@ def create_multicategory_plot():
                         'range': [0.0, 6103.65],
                         'showgrid': True,
                         'showline': True,
+                        'title': 'Count',
                         'side': 'left',
                         'tickfont': {'size': 10.0},
                         'ticks': 'inside',
