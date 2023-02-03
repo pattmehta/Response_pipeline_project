@@ -24,6 +24,14 @@ import pickle
 app = Flask(__name__)
 
 def tokenize(text):
+    '''
+    returns tokens from input text
+    
+    input:
+    - text string
+    output:
+    - list of tokens
+    '''
     tokens = word_tokenize(text)
     lemmatizer = WordNetLemmatizer()
 
@@ -41,6 +49,14 @@ model_path = 'models/classifier.pkl'
 model_path = f'../{model_path}'
 engine = create_engine(f'sqlite:///../{db_path}')
 df = pd.read_sql_table(tbl_name, engine)
+# load model
+# we can use joblib, or pickle to load model e.g. joblib.load(model_path) or pickle usage seen below
+model = None
+with open(model_path, 'rb') as pkl_file:
+    model = pickle.load(pkl_file)
+if not model:
+    print('could not load the model')
+    exit()
 
 # data prep for plots start
 df_genre_vc = df['genre'].value_counts()
@@ -56,6 +72,9 @@ df_category_sort_y = list(df_category_topten.values)
 df_multicategory = df.drop(['message','original','id'],axis=1).groupby(by='genre',group_keys=True)
 selected_colnames = []
 def categories_agg(c):
+    '''
+    aggregate function for data prep
+    '''
     if c.name in df_category_topten.index.values and c.name not in ['related','direct_report','other_aid','request']:
         if c.name not in selected_colnames: selected_colnames.append(c.name)
         return c.sum()
@@ -67,6 +86,9 @@ df_gc_x = list(df_multicategory_agg.index)
 df_mn = df[(df['money']==1)].loc[:,'genre':'weather_related']
 ignore_columns = ['related','aid_related','money','other_aid','request','offer','aid_centers','genre']
 def global_mn_agg(s):
+    '''
+    aggregate function that returns the sum of the column
+    '''
     if s.name not in ignore_columns: return s.sum()
     else: return None
 
@@ -75,6 +97,9 @@ df_mn_message_labels = list(df_mn_agg_cleaned.index)
 
 selected_msglabels = []
 def agg_mn(s):
+    '''
+    aggregate function that returns the sum of the column, used after `groupby`
+    '''
     if s.name not in ['related','aid_related','money','other_aid','request','offer','aid_centers','genre'] and s.name in df_mn_message_labels[:5]:
         if s.name not in selected_msglabels: selected_msglabels.append(s.name)
         return s.sum()
@@ -84,54 +109,57 @@ mn_agg = df_mn.groupby(by='genre',group_keys=True).aggregate(agg_mn).dropna(axis
 mn_agg_x = list(mn_agg.index)
 # data prep for plots end
 
-# load model
-# model = joblib.load(model_path)
-model = None
-with open(model_path, 'rb') as pkl_file:
-    model = pickle.load(pkl_file)
-if not model:
-    print('could not load the model')
-    exit()
-
 
 # routes start
 @app.route('/viz_genre')
 def viz_genre():
+    '''
+    route for the first visualization
+    '''
     ids = [1]
     graphJSON = create_genre_plot()
     return render_template('viz_genre.html', ids=ids, graph=graphJSON)
 
 @app.route('/viz_category')
 def viz_category():
+    '''
+    route for the second visualization
+    '''
     ids = [1]
     graphJSON = create_category_plot()
     return render_template('viz_category.html', ids=ids, graph=graphJSON)
 
 @app.route('/viz_multicategory')
 def viz_multicategory():
+    '''
+    route for the third visualization
+    '''
     ids = [1]
     graphJSON = create_multicategory_plot()
     return render_template('viz_multicategory.html', ids=ids, graph=graphJSON)
 
 @app.route('/viz_multicategory_mn')
 def viz_multicategory_mn():
+    '''
+    route for the fourth visualization
+    '''
     ids = [1]
     graphJSON = create_multicategory_plot_for_mn()
     return render_template('viz_multicategory_mn.html', ids=ids, graph=graphJSON)
 # routes end
 
-# index webpage displays cool visuals and receives user input text for model
 @app.route('/')
 @app.route('/index')
 def index():
-    
+    '''
+    index webpage displays cool visuals and receives user input text for model
+    serves master.html file with other visualizations
+    '''
     # extract data needed for visuals
-    # TODO: Below is an example - modify to extract data for your own visuals
     genre_counts = df.groupby('genre').count()['message']
     genre_names = list(genre_counts.index)
     
     # create visuals
-    # TODO: Below is an example - modify to create your own visuals
     graphs = [
         {
             'data': [
@@ -185,6 +213,7 @@ def main():
 
 # plots start
 def create_genre_plot():
+    # create a graph object that represents the visualization
     graph = \
         {
             'data': [
@@ -232,10 +261,12 @@ def create_genre_plot():
             }
         }
     
+    # encode plotly graphs in JSON
     graphJSON = json.dumps(graph, cls=plotly.utils.PlotlyJSONEncoder)
     return graphJSON
 
 def create_category_plot():
+    # create a graph object that represents the visualization
     graph = \
         {
             'data': [
@@ -283,10 +314,12 @@ def create_category_plot():
             }
         }
     
+    # encode plotly graphs in JSON
     graphJSON = json.dumps(graph, cls=plotly.utils.PlotlyJSONEncoder)
     return graphJSON
 
 def create_multicategory_plot():
+    # create a graph object that represents the visualization
     graph = \
         {
             'data': [
@@ -387,10 +420,12 @@ def create_multicategory_plot():
             }
         }
 
+    # encode plotly graphs in JSON
     graphJSON = json.dumps(graph, cls=plotly.utils.PlotlyJSONEncoder)
     return graphJSON
 
 def create_multicategory_plot_for_mn():
+    # create a graph object that represents the visualization
     graph = \
         {
             'data': [
@@ -482,6 +517,7 @@ def create_multicategory_plot_for_mn():
             }
         }
 
+    # encode plotly graphs in JSON
     graphJSON = json.dumps(graph, cls=plotly.utils.PlotlyJSONEncoder)
     return graphJSON
 # plots end
